@@ -1,7 +1,8 @@
 import { Router } from "express";
 import { protect } from "../../middlewares/auth.middleware.js";
-import { createOrg, getMyOrgs } from "./org.controller.js";
+import { createOrg, getMyOrgs, inviteUser  , acceptInvite} from "./org.controller.js";
 import { requireOrg } from "../../middlewares/org.middleware.js";
+import { requireRole } from "../../middlewares/role.middleware.js";
 
 const router = Router();
 
@@ -13,5 +14,7 @@ router.get("/protected-resource", protect, requireOrg, (req, res) => {
     org: req.org,
   });
 });
+router.post("/invite", protect, requireOrg, requireRole(["OWNER", "ADMIN"]), inviteUser);
+router.post("/invites/:inviteId/accept", protect, acceptInvite);
 
 export default router;
