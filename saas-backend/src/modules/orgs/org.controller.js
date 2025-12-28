@@ -1,6 +1,7 @@
 import Organization from "./org.model.js";
 import Membership from "./membership.model.js";
 import Invite from "./invite.model.js";
+import Subscription from "../billings/subscription.model.js";
 
 export const createOrg = async (req, res) => {
   const { name } = req.body;
@@ -17,6 +18,11 @@ export const createOrg = async (req, res) => {
       userId,
       orgId: org._id,
       role: "OWNER",
+    });
+    await Subscription.create({
+      orgId: org._id,
+      plan: "FREE",
+      status: "ACTIVE",
     });
     res.status(201).json(org);
   } catch (error) {
