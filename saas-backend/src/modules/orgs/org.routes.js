@@ -16,12 +16,8 @@ const router = Router();
 
 router.post("/", protect, createOrg);
 router.get("/", protect, getMyOrgs);
-router.get("/protected-resource", protect, requireOrg, (req, res) => {
-  res.json({
-    message: "You have access to this protected organization resource",
-    org: req.org,
-  });
-});
+
+router.use(protect, requireOrg, attachPlan, rateLimit(60));
 router.post(
   "/invite",
   protect,
@@ -30,12 +26,7 @@ router.post(
   inviteUser
 );
 router.post("/invites/:inviteId/accept", protect, acceptInvite);
-router.use(
-  protect,
-  requireOrg,
-  attachPlan,
-  rateLimit(60) // 60 req/min per org
-);
+
 router.post(
   "/invite",
   protect,
@@ -43,12 +34,5 @@ router.post(
   requireRole(["OWNER"]),
   asyncHandler(inviteUser)
 );
-router.get("/health", (req, res) => {
-  res.json({
-    status: "OK",
-    uptime: process.uptime(),
-    timestamp: Date.now(),
-  });
-});
 
 export default router;

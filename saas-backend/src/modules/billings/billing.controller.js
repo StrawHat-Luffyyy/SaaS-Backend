@@ -1,6 +1,6 @@
 import Subcription from "./subscription.model.js";
 
-export const getSubcription = async (req, res) => {
+export const getSubscription = async (req, res) => {
   try {
     const subcription = await Subcription.findOne({ orgId: req.org.id });
     if (!subcription) {
