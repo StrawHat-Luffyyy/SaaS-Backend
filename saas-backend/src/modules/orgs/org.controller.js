@@ -2,6 +2,8 @@ import Organization from "./org.model.js";
 import Membership from "./membership.model.js";
 import Invite from "./invite.model.js";
 import Subscription from "../billings/subscription.model.js";
+import AuditLog from "../audit/audit.model.js";
+import { logAudit } from "../../utils/audit.js";
 
 export const createOrg = async (req, res) => {
   const { name } = req.body;
@@ -51,6 +53,13 @@ export const inviteUser = async (req, res) => {
       orgId: req.org.id,
       invitedBy: req.user._id,
     });
+
+    await logAudit({
+      orgId: req.org.id,
+      userId: req.user.id,
+      action: "INVITE_USER",
+      meta: { email, role },
+    });
     res.status(201).json({
       message: "User invited successfully",
       invite,
@@ -73,10 +82,27 @@ export const acceptInvite = async (req, res) => {
       orgId: invite.orgId,
       role: invite.role,
     });
+    await logAudit({
+      orgId: invite.orgId,
+      userId: req.user.id,
+      action: "ACCEPT_INVITE",
+      meta: {
+        role: invite.role,
+      },
+    });
+
     await Invite.findByIdAndDelete(inviteId);
     res.json({ message: "Joined organization successfully" });
   } catch (error) {
     console.error("Error accepting invite:", error);
     res.status(500).json({ message: "Internal server error" });
   }
+};
+
+export const getAuditLogs = async (req, res) => {
+  const logs = await AuditLog.find({
+    orgId: req.org.id,
+  }).sort({ createdAt: -1 });
+
+  res.json({ logs });
 };
