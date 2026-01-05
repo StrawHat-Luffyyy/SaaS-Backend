@@ -1,14 +1,25 @@
 import mongoose from "mongoose";
 
-const UsageSchema = new mongoose.Schema(
+const usageSchema = new mongoose.Schema(
   {
     orgId: {
       type: mongoose.Schema.Types.ObjectId,
-      month: String,
-      apiCalls: { type: Number, default: 0 },
+      required: true,
+      index: true,
+    },
+    month: {
+      type: String, // YYYY-MM
+      required: true,
+    },
+    apiCalls: {
+      type: Number,
+      default: 0,
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("Usage", UsageSchema);
+// Prevent duplicate rows for same org + month
+usageSchema.index({ orgId: 1, month: 1 }, { unique: true });
+
+export default mongoose.model("Usage", usageSchema);

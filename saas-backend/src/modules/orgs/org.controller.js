@@ -2,7 +2,6 @@ import Organization from "./org.model.js";
 import Membership from "./membership.model.js";
 import Invite from "./invite.model.js";
 import Subscription from "../billings/subscription.model.js";
-import AuditLog from "../audit/audit.model.js";
 import { logAudit } from "../../utils/audit.js";
 
 export const createOrg = async (req, res) => {
@@ -99,10 +98,3 @@ export const acceptInvite = async (req, res) => {
   }
 };
 
-export const getAuditLogs = async (req, res) => {
-  const logs = await AuditLog.find({
-    orgId: req.org.id,
-  }).sort({ createdAt: -1 });
-
-  res.json({ logs });
-};
