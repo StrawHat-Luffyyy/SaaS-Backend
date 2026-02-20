@@ -2,16 +2,19 @@ import Membership from "../modules/orgs/membership.model.js";
 
 export const requireOrg = async (req, res, next) => {
   const orgId = req.headers["x-org-id"];
+  if (!orgId) {
+    return res
+      .status(400)
+      .json({ message: "Organization ID header is required" });
+  }
+  if (!orgId.match(/^[0-9a-fA-F]{24}$/)) {
+    return res.status(400).json({ message: "Invalid organization ID format" });
+  }
   try {
-    if (!orgId) {
-      return res
-        .status(400)
-        .json({ message: "Organization ID header is required" });
-    }
     const membership = await Membership.findOne({
       userId: req.user._id,
       orgId: orgId,
-    });
+    }).lean();
     if (!membership) {
       return res
         .status(403)
@@ -20,10 +23,11 @@ export const requireOrg = async (req, res, next) => {
     req.org = {
       id: orgId,
       role: membership.role,
+      membership,
     };
     next();
   } catch (error) {
     console.error("Error in requireOrg middleware:", error);
-    res.status(500).json({ message: "Internal server error" });
+    next(error);
   }
 };
