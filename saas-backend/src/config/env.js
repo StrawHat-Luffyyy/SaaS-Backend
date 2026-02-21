@@ -1,5 +1,4 @@
 import dotenv from "dotenv";
-dotenv.config();
 
 const required = ["MONGO_URI", "ACCESS_TOKEN_SECRET", "REFRESH_TOKEN_SECRET"];
 
@@ -15,6 +14,9 @@ export const env = {
   accessTokenSecret: process.env.ACCESS_TOKEN_SECRET,
   refreshTokenSecret: process.env.REFRESH_TOKEN_SECRET,
   cookieSecure: process.env.COOKIE_SECURE === "true",
+  allowedOrigins: process.env.ALLOWED_ORIGINS.split(",") ?? [
+    "http://localhost:3000",
+  ],
 
   redisHost: process.env.REDIS_HOST,
   redisPort: parseInt(process.env.REDIS_PORT ?? "6379", 10),
